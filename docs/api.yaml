@@ -1,0 +1,266 @@
+openapi: 3.0.3
+info:
+  title: Easy Job
+  description: Easiest way to find a job
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /offers:
+    get:
+      operationId: getOffers
+      summary: get all offers.
+      tags:
+        - Offers
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          required: true
+          in: query
+          schema:
+            type: integer
+            maximum: 500
+        - name: filter
+          description: multi-criteria ignore case filter for any field in offer except ID
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: Paginated Offer list ordered by creation date asc.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Offer'
+    put:
+      operationId: saveOffers
+      summary: update offers if ID is provided. Create them otherwise.
+      tags:
+        - Offers
+      responses:
+        200:
+          description: Just updated offers list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Offer'
+  /offers/{ref}:
+    get:
+      operationId: getOfferByRef
+      summary: get one offer by its ref.
+      tags:
+        - Offers
+      responses:
+        200:
+          description: the offer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+  /appliances:
+    get:
+      tags:
+        - Appliances
+      operationId: getAppliances
+      summary: get all appliances
+      responses:
+        200:
+          description: get all appliances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appliance'
+    put:
+      tags:
+        - Appliances
+      operationId: saveAppliances
+      summary: update appliances if id is given. Create them otherwise.
+      responses:
+        200:
+          description: updated appliances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreateAppliance'
+  /appliances/{id}:
+    get:
+      tags:
+        - Appliances
+      operationId: getApplianceById
+      summary: get one appliance by id
+      responses:
+        200:
+          description: one appliance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appliance'
+  /domains:
+    get:
+      summary: get all domains
+      tags:
+        - Domains
+      operationId: getDomains
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          required: true
+          in: query
+          schema:
+            type: integer
+            maximum: 500
+      responses:
+        200:
+          description: domain list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Domain'
+    put:
+      summary: saveDomains
+      tags:
+        - Domains
+      responses:
+        200:
+          description: updated's domain list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Domain'
+
+  /domains/{id}:
+    get:
+      summary: get domain by id
+      tags:
+        - Domains
+      responses:
+        200:
+          description: a domain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+components:
+  schemas:
+    Offer:
+      type: object
+      properties:
+        id:
+          type: string
+          example: offer_id1
+        ref:
+          type: string
+          example: offer_ref1
+        status:
+          type: string
+          enum:
+            - AVAILABLE
+            - TAKEN
+        domain:
+          $ref: '#/components/schemas/Domain'
+        position:
+          type: string
+          example: offer_position1
+        profile:
+          type: string
+          example: offer_profile1
+        mission:
+          type: string
+          example: offer_mission1
+        sender_email:
+          type: string
+          format: email
+    CreateAppliance:
+      type: object
+      properties:
+        id:
+          type: string
+          example: appliance_id1
+        offer_ref:
+          type: string
+          example: offer1_ref
+        candidate_email:
+          type: string
+          format: email
+    Appliance:
+      type: object
+      properties:
+        offer:
+          $ref: '#/components/schemas/Offer'
+        candidate:
+          $ref: '#/components/schemas/Candidate'
+        applianceDate:
+          type: string
+          format: date-time
+    Candidate:
+      type: object
+      properties:
+        id:
+          type: string
+          example: candidate_id1
+        name:
+          type: string
+          example: Mahefa Ny Anjara
+        email:
+          type: string
+          format: email
+          example: candidate_email1
+    SaveDomain:
+      type: object
+      properties:
+        id:
+          type: string
+          example: domain_id
+        name:
+          type: string
+          example: domain_name
+    Domain:
+      allOf:
+        - $ref: "#/components/schemas/SaveDomain"
+      properties:
+        available_job_offers:
+          type: integer
+          example: 10
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: user_username1
+        email:
+          type: string
+          example: user_email1
+        interests:
+          type: array
+          minLength: 1
+    Message:
+      type: object
+      properties:
+        content:
+          type: string
+        sender:
+          $ref: '#/components/schemas/User'
+        receiver:
+          $ref: '#/components/schemas/User'
