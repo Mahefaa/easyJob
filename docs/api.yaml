@@ -6,108 +6,6 @@ info:
 servers:
   - url: 'http://localhost:8080'
 paths:
-  /offers:
-    get:
-      operationId: getOffers
-      summary: get all offers.
-      tags:
-        - Offers
-      parameters:
-        - name: page
-          required: true
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-        - name: pageSize
-          required: true
-          in: query
-          schema:
-            type: integer
-            maximum: 500
-        - name: filter
-          description: multi-criteria ignore case filter for any field in offer except ID
-          in: query
-          schema:
-            type: string
-      responses:
-        200:
-          description: Paginated Offer list ordered by creation date asc.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Offer'
-    put:
-      operationId: saveOffers
-      summary: update offers if ID is provided. Create them otherwise.
-      tags:
-        - Offers
-      responses:
-        200:
-          description: Just updated offers list
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Offer'
-  /offers/{ref}:
-    get:
-      operationId: getOfferByRef
-      summary: get one offer by its ref.
-      tags:
-        - Offers
-      responses:
-        200:
-          description: the offer
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Offer'
-  /appliances:
-    get:
-      tags:
-        - Appliances
-      operationId: getAppliances
-      summary: get all appliances
-      responses:
-        200:
-          description: get all appliances
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Appliance'
-    put:
-      tags:
-        - Appliances
-      operationId: saveAppliances
-      summary: update appliances if id is given. Create them otherwise.
-      responses:
-        200:
-          description: updated appliances
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CreateAppliance'
-  /appliances/{id}:
-    get:
-      tags:
-        - Appliances
-      operationId: getApplianceById
-      summary: get one appliance by id
-      responses:
-        200:
-          description: one appliance
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Appliance'
   /domains:
     get:
       summary: get all domains
@@ -155,6 +53,12 @@ paths:
       summary: get domain by id
       tags:
         - Domains
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: a domain
@@ -162,6 +66,214 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Domain'
+  /users:
+    get:
+      tags:
+        - Users
+      summary: get users by email
+      operationId: getUsers
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          required: true
+          in: query
+          schema:
+            type: integer
+            maximum: 500
+        - name: mail
+          in: query
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: list of users
+    post:
+      tags:
+        - Users
+      summary: Update user if id is provided. Create it otherwise
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: updated users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/admins:
+    post:
+      tags:
+        - Users
+      requestBody:
+        $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: created admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/candidates:
+    post:
+      tags:
+        - Users
+      requestBody:
+        $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: created candidate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/recruiter:
+    post:
+      tags:
+        - Users
+      requestBody:
+        $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: created recruiter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /offers:
+    get:
+      operationId: getOffers
+      summary: get all offers.
+      tags:
+        - Offers
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          required: true
+          in: query
+          schema:
+            type: integer
+            maximum: 500
+        - name: filter
+          description: multi-criteria ignore case filter for any field in offer except ID
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: Paginated Offer list ordered by creation date asc.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Offer'
+    put:
+      operationId: saveOffers
+      summary: update offers if ID is provided. Create them otherwise.
+      tags:
+        - Offers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Offer'
+      responses:
+        200:
+          description: Just updated offers list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Offer'
+  /offers/{ref}:
+    get:
+      operationId: getOfferByRef
+      summary: get one offer by its ref.
+      tags:
+        - Offers
+      parameters:
+        - name: ref
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: the offer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+  /appliances:
+    get:
+      tags:
+        - Appliances
+      operationId: getAppliances
+      summary: get all appliances
+      responses:
+        200:
+          description: get all appliances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appliance'
+    put:
+      tags:
+        - Appliances
+      operationId: saveAppliances
+      summary: update appliances if id is given. Create them otherwise.
+      responses:
+        200:
+          description: updated appliances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreateAppliance'
+  /appliances/{id}:
+    get:
+      tags:
+        - Appliances
+      operationId: getApplianceById
+      summary: get one appliance by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: one appliance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appliance'
 components:
   schemas:
     Offer:
@@ -246,15 +358,22 @@ components:
     User:
       type: object
       properties:
-        username:
-          type: string
-          example: user_username1
+        id:
+          type: integer
+          example: 1
         email:
           type: string
-          example: user_email1
+          format: email
+        password:
+          type: string
+          example: hashedPassword
         interests:
           type: array
-          minLength: 1
+        role:
+          type: string
+          example: admin
+        enabled:
+          type: boolean
     Message:
       type: object
       properties:
