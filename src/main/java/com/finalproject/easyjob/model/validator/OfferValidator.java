@@ -1,35 +1,33 @@
-/*
 package com.finalproject.easyjob.model.validator;
 
 import com.finalproject.easyjob.model.Offer;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
-public class OfferValidator implements Consumer<Offer> {
-  private final Validator validator;
+public class OfferValidator {
 
   public void accept(List<Offer> offers) {
-    offers.forEach(this);
+    offers.forEach(this::accept);
   }
 
-  @Override
   public void accept(Offer offer) {
-    Set<ConstraintViolation<Offer>> violations = validator.validate(offer);
-    if (!violations.isEmpty()) {
-      String constraintMessages = violations
-          .stream()
-          .map(ConstraintViolation::getMessage)
-          .collect(Collectors.joining(". "));
+    List<String> exceptions = new ArrayList<>();
+    if (offer.getProfile() == null) {
+      exceptions.add("profile is missing");
+    }
+    if (offer.getRef() == null) {
+      exceptions.add("ref is missing");
+    }
+    if (offer.getPosition() == null) {
+      exceptions.add("position is missing");
+    }
+    if (!exceptions.isEmpty()) {
+      String constraintMessages = String.join(". ", exceptions);
       throw new RuntimeException(constraintMessages);
     }
   }
 }
-*/

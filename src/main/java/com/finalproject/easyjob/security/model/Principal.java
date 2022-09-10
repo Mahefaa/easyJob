@@ -4,6 +4,7 @@ import com.finalproject.easyjob.model.User;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * The user and its details as specified by the UserDetails interface of Spring
  * You can add the other fields eventually to check if an account is still working or not.
  */
+@Getter
 @AllArgsConstructor
 @ToString
 public class Principal implements UserDetails {
@@ -54,5 +56,9 @@ public class Principal implements UserDetails {
   @Override
   public boolean isEnabled() {
     return user.getEnabled();
+  }
+
+  public String getRole() {
+    return user.getRole().getRole();
   }
 }

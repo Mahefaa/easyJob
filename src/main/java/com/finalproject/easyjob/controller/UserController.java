@@ -4,6 +4,7 @@ import com.finalproject.easyjob.controller.mapper.UserMapper;
 import com.finalproject.easyjob.model.BoundedPageSize;
 import com.finalproject.easyjob.model.PageFromOne;
 import com.finalproject.easyjob.model.rest.RestUser;
+import com.finalproject.easyjob.security.model.Role;
 import com.finalproject.easyjob.service.UserService;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -34,17 +35,17 @@ public class UserController {
 
   @PostMapping("/users/admins")
   public RestUser createAdmin(@RequestBody RestUser restUser) {
-    return mapper.toRest(service.createUser(mapper.toDomainAdmin(restUser)));
+    return mapper.toRest(service.createUser(mapper.toDomain(restUser, Role.ADMIN)));
   }
 
   @PostMapping("users/candidates")
   public RestUser createCandidate(@RequestBody RestUser restUser) {
-    return mapper.toRest(service.createUser(mapper.toDomainCandidate(restUser)));
+    return mapper.toRest(service.createUser(mapper.toDomain(restUser, Role.CANDIDATE)));
   }
 
   @PostMapping("users/recruiters")
   public RestUser createRecruiter(@RequestBody RestUser restUser) {
-    return mapper.toRest(service.createUser(mapper.toDomainRecruiter(restUser)));
+    return mapper.toRest(service.createUser(mapper.toDomain(restUser, Role.RECRUITER)));
   }
 
   @GetMapping("/users/{id}")

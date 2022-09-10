@@ -21,12 +21,12 @@ public class OfferMapper {
     return Offer.builder()
         .id(restOffer.getId())
         .domain(domainService.getByName(restOffer.getDomainName()))
-        .creationInstant(Instant.now(Clock.system(ZoneId.of("Europe/Moscow"))))
+        .creationInstant(Instant.now(Clock.system(ZoneId.of("GMT+3"))))
         .mission(restOffer.getMission())
         .ref(restOffer.getRef())
         .position(restOffer.getPosition())
         .profile(restOffer.getProfile())
-        .sender(userService.getByEmail(CustomAuthenticationProvider.getPrincipal().getUsername()))
+        .sender(userService.getByEmail(restOffer.getSenderEmail()))
         .build();
   }
 

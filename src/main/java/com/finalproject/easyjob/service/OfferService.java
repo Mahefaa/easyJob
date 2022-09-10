@@ -3,8 +3,10 @@ package com.finalproject.easyjob.service;
 import com.finalproject.easyjob.model.BoundedPageSize;
 import com.finalproject.easyjob.model.Offer;
 import com.finalproject.easyjob.model.PageFromOne;
+import com.finalproject.easyjob.model.validator.OfferValidator;
 import com.finalproject.easyjob.repository.OfferRepository;
 import java.util.List;
+import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +17,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class OfferService {
   private final OfferRepository repository;
-  //private final OfferValidator validator;
+  private final OfferValidator validator;
 
   public List<Offer> getByCriteria(PageFromOne page, BoundedPageSize pageSize, String status,
                                    String senderEmail,
@@ -30,8 +32,9 @@ public class OfferService {
         offerProfile, offerPosition, offerMission);
   }
 
+  @Transactional
   public List<Offer> saveAll(List<Offer> offers) {
-    //validator.accept(offers);
+    validator.accept(offers);
     return repository.saveAll(offers);
   }
 

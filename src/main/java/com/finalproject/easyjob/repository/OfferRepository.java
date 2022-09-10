@@ -1,7 +1,6 @@
 package com.finalproject.easyjob.repository;
 
 import com.finalproject.easyjob.model.Offer;
-import com.finalproject.easyjob.model.Status;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;

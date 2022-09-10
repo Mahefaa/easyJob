@@ -1,35 +1,30 @@
-/*
 package com.finalproject.easyjob.model.validator;
 
 import com.finalproject.easyjob.model.User;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
-public class UserValidator implements Consumer<User> {
-  private final Validator validator;
+public class UserValidator {
 
   public void accept(List<User> users) {
-    users.forEach(this);
+    users.forEach(this::accept);
   }
 
-  @Override
   public void accept(User user) {
-    Set<ConstraintViolation<User>> violations = validator.validate(user);
-    if (!violations.isEmpty()) {
-      String constraintMessages = violations
-          .stream()
-          .map(ConstraintViolation::getMessage)
-          .collect(Collectors.joining(". "));
+    List<String> exceptions = new ArrayList<>();
+    if (user.getPassword() == null) {
+      exceptions.add("password is missing");
+    }
+    if (user.getEmail() == null) {
+      exceptions.add("email is missing");
+    }
+    if (!exceptions.isEmpty()) {
+      String constraintMessages = String.join(". ", exceptions);
       throw new RuntimeException(constraintMessages);
     }
   }
 }
-*/

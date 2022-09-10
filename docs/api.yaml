@@ -118,7 +118,10 @@ paths:
       tags:
         - Users
       requestBody:
-        $ref: '#/components/schemas/User'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
       responses:
         200:
           description: created admin
@@ -131,7 +134,10 @@ paths:
       tags:
         - Users
       requestBody:
-        $ref: '#/components/schemas/User'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
       responses:
         200:
           description: created candidate
@@ -144,7 +150,10 @@ paths:
       tags:
         - Users
       requestBody:
-        $ref: '#/components/schemas/User'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
       responses:
         200:
           description: created recruiter
@@ -355,7 +364,7 @@ components:
         available_job_offers:
           type: integer
           example: 10
-    User:
+    CreateUser:
       type: object
       properties:
         id:
@@ -369,11 +378,21 @@ components:
           example: hashedPassword
         interests:
           type: array
-        role:
-          type: string
-          example: admin
+          items:
+            - type: string
         enabled:
           type: boolean
+    User:
+      allOf:
+        - $ref: '#/components/schemas/CreateUser'
+      properties:
+        role:
+          type: string
+          enum:
+            - admin
+            - recruiter
+            - candidate
+          default: candidate
     Message:
       type: object
       properties:

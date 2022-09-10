@@ -11,6 +11,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -35,11 +36,12 @@ public class User implements Serializable {
   private int id;
   @NotBlank(message = "email cannot be blank")
   @NotNull(message = "email is mandatory")
+  @Column(unique = true)
   private String email;
   @NotBlank(message = "password cannot be blank")
   @NotNull(message = "password is mandatory")
   private String password;
-  @OneToMany
+  @ManyToMany
   private Set<Domain> interests;
   @CreationTimestamp
   private Instant joinedInstant;

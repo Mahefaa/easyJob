@@ -1,5 +1,6 @@
 package com.finalproject.easyjob.model;
 
+
 import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.Entity;

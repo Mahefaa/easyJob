@@ -38,7 +38,7 @@ public class DomainController {
   }
 
   @GetMapping("/domains/{id}")
-  public RestDomain getDomainById(@PathVariable int id){
+  public RestDomain getDomainById(@PathVariable int id) {
     return mapper.toRest(service.getById(id));
   }
 }
