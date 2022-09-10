@@ -26,32 +26,26 @@ public class OfferController {
   public List<RestOffer> getOffers(@RequestParam PageFromOne page,
                                    @RequestParam BoundedPageSize pageSize,
                                    @RequestParam(required = false, defaultValue = "AVAILABLE")
-                                   String status,
-                                   @RequestParam(required = false, defaultValue = "")
-                                   String senderEmail,
-                                   @RequestParam(required = false, defaultValue = "")
-                                   String domainName,
-                                   @RequestParam(required = false, defaultValue = "")
-                                   String offerRef,
-                                   @RequestParam(required = false, defaultValue = "")
-                                   String offerProfile,
-                                   @RequestParam(required = false, defaultValue = "")
-                                   String offerPosition,
-                                   @RequestParam(required = false, defaultValue = "")
-                                   String offerMission
+                                   String filter
   ) {
-    return service.getByCriteria(page, pageSize, status, senderEmail, domainName, offerRef,
-        offerProfile, offerPosition, offerMission).stream().map(mapper::toRest).toList();
+    return service.getByCriteria(page, pageSize, filter).stream().map(mapper::toRest).toList();
   }
 
-  @PutMapping("/offers")
-  public List<RestOffer> createOrUpdateOffers(@RequestBody List<RestOffer> restOffers) {
-    return service.saveAll(restOffers.stream().map(mapper::toDomain).toList()).stream()
+
+  @GetMapping("/offers/{id}")
+  public RestOffer getOfferById(@PathVariable int id) {
+    return mapper.toRest(service.getById(id));
+  }
+
+  @PutMapping("/users/{userId}/offers")
+  public List<RestOffer> createOrUpdateOffers(@PathVariable("userId") int id,
+                                              @RequestBody List<RestOffer> restOffers) {
+    return service.saveAll(restOffers.stream().map(o -> mapper.toDomain(o, id)).toList()).stream()
         .map(mapper::toRest).toList();
   }
 
-  @GetMapping("/offers/{ref}")
-  public RestOffer getOfferByRef(@PathVariable String ref) {
-    return mapper.toRest(service.getByRef(ref));
+  @GetMapping("/users/{userId}/offers/{id}/close")
+  public RestOffer closeOffer(@PathVariable int id) {
+    return mapper.toRest(service.closeOffer(id));
   }
 }

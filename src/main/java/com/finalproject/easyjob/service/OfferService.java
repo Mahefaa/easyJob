@@ -19,17 +19,19 @@ public class OfferService {
   private final OfferRepository repository;
   private final OfferValidator validator;
 
-  public List<Offer> getByCriteria(PageFromOne page, BoundedPageSize pageSize, String status,
-                                   String senderEmail,
-                                   String domainName,
-                                   String offerRef,
-                                   String offerProfile,
-                                   String offerPosition,
-                                   String offerMission) {
+  public List<Offer> getByCriteria(PageFromOne page,
+                                   BoundedPageSize pageSize,
+                                   String filter) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(),
         Sort.by(Sort.Direction.ASC, "creationInstant"));
-    return repository.findAllByCriteria(pageable, status, senderEmail, domainName, offerRef,
-        offerProfile, offerPosition, offerMission);
+    return repository.findAllByCriteria(pageable, filter);
+  }
+
+  @Transactional
+  public Offer closeOffer(int id) {
+    Offer toUpdate = getById(id);
+    toUpdate.setStatus(Offer.Status.TAKEN);
+    return toUpdate;
   }
 
   @Transactional
@@ -38,7 +40,7 @@ public class OfferService {
     return repository.saveAll(offers);
   }
 
-  public Offer getByRef(String ref) {
-    return repository.findByRef(ref).orElseThrow(() -> new RuntimeException("Offer not found"));
+  public Offer getById(int id) {
+    return repository.findById(id).orElseThrow(() -> new RuntimeException("Offer not found"));
   }
 }

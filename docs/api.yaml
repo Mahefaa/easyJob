@@ -11,7 +11,7 @@ paths:
       summary: get all domains
       tags:
         - Domains
-      operationId: getDomains
+      operationId: getDomainsByName
       parameters:
         - name: page
           required: true
@@ -25,6 +25,11 @@ paths:
           schema:
             type: integer
             maximum: 500
+        - name: name
+          required: false
+          in: query
+          schema:
+            type: string
       responses:
         200:
           description: domain list
@@ -35,9 +40,15 @@ paths:
                 items:
                   $ref: '#/components/schemas/Domain'
     put:
-      summary: saveDomains
+      operationId: createOrUpdateDomains
+      summary: update domains if ids are provided. Create them otherwise.
       tags:
         - Domains
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveDomain'
       responses:
         200:
           description: updated's domain list
@@ -47,30 +58,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Domain'
-
-  /domains/{id}:
-    get:
-      summary: get domain by id
-      tags:
-        - Domains
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: a domain
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Domain'
   /users:
     get:
       tags:
         - Users
-      summary: get users by email
+      summary: get users.
       operationId: getUsers
       parameters:
         - name: page
@@ -96,25 +88,63 @@ paths:
       responses:
         200:
           description: list of users
-    post:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/{id}:
+    get:
+      summary: get users by id
       tags:
         - Users
-      summary: Update user if id is provided. Create it otherwise
+      operationId: getUserById
+      parameters:
+        - name: id
+          required: true
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: a user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      summary: update user if is is provided. Create it otherwise.
+      tags:
+        - Users
+      operationId: updateUser
+      parameters:
+        - name: id
+          required: true
+          in: query
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              allOf:
+                - $ref: '#/components/schemas/CreateUser'
+              properties:
+                role:
+                  $ref: '#/components/schemas/Role'
       responses:
         200:
-          description: updated users
+          description: a user
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
   /users/admins:
     post:
+      summary: create users with role ADMIN.
+      operationId: createAdmin
       tags:
         - Users
       requestBody:
@@ -131,6 +161,8 @@ paths:
                 $ref: '#/components/schemas/User'
   /users/candidates:
     post:
+      summary: create users with role CANDIDATE.
+      operationId: createCandidate
       tags:
         - Users
       requestBody:
@@ -145,8 +177,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-  /users/recruiter:
+  /users/recruiters:
     post:
+      summary: create users with role RECRUITER.
+      operationId: createRecruiter
       tags:
         - Users
       requestBody:
@@ -194,11 +228,37 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Offer'
-    put:
-      operationId: saveOffers
-      summary: update offers if ID is provided. Create them otherwise.
+  /offers/{id}:
+    get:
+      operationId: getOfferById
+      summary: get one offer by its id.
       tags:
         - Offers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: the offer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+  /users/{userId}/offers:
+    put:
+      tags:
+        - Offers
+      operationId: createOrUpdateOffers
+      summary: update offers if ID is provided. Create them otherwise.
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -216,18 +276,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Offer'
-  /offers/{ref}:
+  /users/{userId}/offers/{id}/close:
     get:
-      operationId: getOfferByRef
-      summary: get one offer by its ref.
       tags:
         - Offers
+      summary: closes an offer
+      operationId: closeOffer
       parameters:
-        - name: ref
+        - name: userId
           in: path
           required: true
           schema:
-            type: string
+            type: integer
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: the offer
@@ -235,15 +300,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Offer'
-  /appliances:
+  /users/{userId}/appliances:
     get:
       tags:
         - Appliances
       operationId: getAppliances
-      summary: get all appliances
+      summary: get all appliances that user id has sent.
+      parameters:
+        - name: userId
+          in: path
+          schema:
+            type: integer
+
       responses:
         200:
-          description: get all appliances
+          description: get all appliances sent by user id.
           content:
             application/json:
               schema:
@@ -253,7 +324,7 @@ paths:
     put:
       tags:
         - Appliances
-      operationId: saveAppliances
+      operationId: CreateOrUpdateAppliances
       summary: update appliances if id is given. Create them otherwise.
       responses:
         200:
@@ -264,7 +335,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CreateAppliance'
-  /appliances/{id}:
+  /users/{userId}/appliances/{id}:
     get:
       tags:
         - Appliances
@@ -283,8 +354,85 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Appliance'
+  /offers/{offerId}/appliances/:
+    get:
+      tags:
+        - Appliances
+      operationId: getAppliances
+      summary: get all appliances
+      responses:
+        200:
+          description: get all appliances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appliance'
+  /offers/{offerId}/appliances/{id}:
+    get:
+      tags:
+        - Appliances
+      operationId: getApplianceById
+      summary: get one appliance by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: one appliance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appliance'
+  /offers/appliances/{id}/act:
+    put:
+      tags:
+        - Appliances
+      operationId: updateApplianceState
+      summary: accepts or rejects appliance
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              enum:
+                - ACCEPT
+                - REJECT
+      responses:
+        200:
+          description: update appliance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appliance'
 components:
   schemas:
+    SaveOffer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        domain:
+          type: string
+          example: domain1
+        mission:
+          type: string
+          example: develop web app in 15 minutes
+        position:
+          type: string
+          example: backend developer
+        profile:
+          type: string
+          example: 20 y.o and single
+        sender:
+          type: string
+          format: email
     Offer:
       type: object
       properties:
@@ -319,10 +467,10 @@ components:
         id:
           type: string
           example: appliance_id1
-        offer_ref:
-          type: string
-          example: offer1_ref
-        candidate_email:
+        offerId:
+          type: integer
+          example: 1
+        userEmail:
           type: string
           format: email
     Appliance:
@@ -335,6 +483,12 @@ components:
         applianceDate:
           type: string
           format: date-time
+        Status:
+          type: string
+          enum:
+            - ONGOING
+            - APPROVED
+            - REJECTED
     Candidate:
       type: object
       properties:
@@ -376,10 +530,6 @@ components:
         password:
           type: string
           example: hashedPassword
-        interests:
-          type: array
-          items:
-            - type: string
         enabled:
           type: boolean
     User:
@@ -387,12 +537,10 @@ components:
         - $ref: '#/components/schemas/CreateUser'
       properties:
         role:
+          $ref: '#/components/schemas/Role'
+        joinedInstant:
           type: string
-          enum:
-            - admin
-            - recruiter
-            - candidate
-          default: candidate
+          format: date-time
     Message:
       type: object
       properties:
@@ -402,3 +550,10 @@ components:
           $ref: '#/components/schemas/User'
         receiver:
           $ref: '#/components/schemas/User'
+    Role:
+      type: string
+      enum:
+        - admin
+        - recruiter
+        - candidate
+      default: candidate

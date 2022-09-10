@@ -3,7 +3,6 @@ package com.finalproject.easyjob.model;
 import com.finalproject.easyjob.security.model.Role;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -11,9 +10,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -36,13 +34,12 @@ public class User implements Serializable {
   private int id;
   @NotBlank(message = "email cannot be blank")
   @NotNull(message = "email is mandatory")
+  @Email(message = "must be a valid email")
   @Column(unique = true)
   private String email;
   @NotBlank(message = "password cannot be blank")
   @NotNull(message = "password is mandatory")
   private String password;
-  @ManyToMany
-  private Set<Domain> interests;
   @CreationTimestamp
   private Instant joinedInstant;
   @Enumerated(EnumType.STRING)

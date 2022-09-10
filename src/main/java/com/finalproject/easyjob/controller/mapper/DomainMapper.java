@@ -2,6 +2,7 @@ package com.finalproject.easyjob.controller.mapper;
 
 import com.finalproject.easyjob.model.BoundedPageSize;
 import com.finalproject.easyjob.model.Domain;
+import com.finalproject.easyjob.model.Offer;
 import com.finalproject.easyjob.model.PageFromOne;
 import com.finalproject.easyjob.model.rest.RestDomain;
 import com.finalproject.easyjob.model.rest.RestSaveDomain;
@@ -22,13 +23,12 @@ public class DomainMapper {
   }
 
   public RestDomain toRest(Domain domain) {
-    int nb = offerService.getByCriteria(new PageFromOne(1),
-        new BoundedPageSize(500), "AVAILABLE", "", "", "", "",
-        "", "").size();
+    int availOffersNb = offerService.getByCriteria(new PageFromOne(1),
+        new BoundedPageSize(500), Offer.Status.AVAILABLE.name()).size();
     return RestDomain.builder()
         .id(domain.getId())
         .name(domain.getName())
-        .availableJobOffers(nb)
+        .availableJobOffers(availOffersNb)
         .build();
   }
 }

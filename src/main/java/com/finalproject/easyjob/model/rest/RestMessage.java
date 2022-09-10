@@ -1,8 +1,6 @@
 package com.finalproject.easyjob.model.rest;
 
-import com.finalproject.easyjob.security.model.Role;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,10 +10,9 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class RestUser {
-  private int id;
+public class RestMessage {
   private String email;
-  private String password;
-  private Instant joinedInstant;
-  private Role role;
+  private String otherEmail;
+  private String content;
+  private Instant creationInstant;
 }

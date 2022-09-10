@@ -1,6 +1,5 @@
 package com.finalproject.easyjob.model.rest;
 
-import com.finalproject.easyjob.model.Offer;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,14 +10,9 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class RestOffer {
+public class RestAppliance {
   private int id;
-  private String ref;
-  private Offer.Status status;
-  private String domainName;
-  private String position;
-  private String mission;
-  private String profile;
   private Instant creationInstant;
-  private String senderEmail;
+  private int offerId;
+  private String userEmail;
 }

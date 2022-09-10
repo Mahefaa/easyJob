@@ -33,6 +33,16 @@ public class UserController {
         .toList();
   }
 
+  @GetMapping("/users/{id}")
+  public RestUser getUserById(@PathVariable int id) {
+    return mapper.toRest(service.getById(id));
+  }
+
+  @PutMapping("/users/{id}")
+  public RestUser updateUser(@PathVariable int id, @RequestBody RestUser restUser) {
+    return mapper.toRest(service.updateUser(id, mapper.toDomain(restUser)));
+  }
+
   @PostMapping("/users/admins")
   public RestUser createAdmin(@RequestBody RestUser restUser) {
     return mapper.toRest(service.createUser(mapper.toDomain(restUser, Role.ADMIN)));
@@ -46,15 +56,5 @@ public class UserController {
   @PostMapping("users/recruiters")
   public RestUser createRecruiter(@RequestBody RestUser restUser) {
     return mapper.toRest(service.createUser(mapper.toDomain(restUser, Role.RECRUITER)));
-  }
-
-  @GetMapping("/users/{id}")
-  public RestUser getUserById(@PathVariable int id) {
-    return mapper.toRest(service.getById(id));
-  }
-
-  @PutMapping("/users/{id}")
-  public RestUser updateUser(@PathVariable int id, @RequestBody RestUser restUser) {
-    return mapper.toRest(service.updateUser(id, mapper.toDomain(restUser)));
   }
 }

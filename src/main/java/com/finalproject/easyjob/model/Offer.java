@@ -3,6 +3,7 @@ package com.finalproject.easyjob.model;
 
 import java.io.Serializable;
 import java.time.Instant;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -32,6 +33,7 @@ public class Offer implements Serializable {
 
   @NotNull(message = "Offer ref is mandatory")
   @NotBlank(message = "Offer ref is mandatory")
+  @Column(unique = true)
   private String ref;
 
   @ManyToOne
@@ -53,10 +55,12 @@ public class Offer implements Serializable {
   @CreationTimestamp
   private Instant creationInstant;
 
-  //@Column(columnDefinition = "default available")
   @Enumerated(EnumType.STRING)
   private Status status;
 
   @ManyToOne
   private User sender;
+  public enum Status {
+    AVAILABLE,TAKEN
+  }
 }
