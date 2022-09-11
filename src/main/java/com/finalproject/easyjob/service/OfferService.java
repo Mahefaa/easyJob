@@ -31,8 +31,20 @@ public class OfferService {
   public Offer closeOffer(int id) {
     Offer toUpdate = getById(id);
     toUpdate.setStatus(Offer.Status.TAKEN);
+    //alertOfferCandidates(id);
     return toUpdate;
   }
+  /*
+  this creates a loop and springboot application does
+  public void alertOfferCandidates(int offerId) {
+    applianceService
+        .getByOfferId(offerId)
+        .stream()
+        .map(Appliance::getUser)
+        .filter(User::getEnabled)
+        .map(User::getId)
+        .forEach((id) -> messageService.saveMessage(id, "offer with ID " + offerId + " has been closed."));
+  }*/
 
   @Transactional
   public List<Offer> saveAll(List<Offer> offers) {

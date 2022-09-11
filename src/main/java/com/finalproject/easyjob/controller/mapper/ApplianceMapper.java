@@ -3,7 +3,6 @@ package com.finalproject.easyjob.controller.mapper;
 import com.finalproject.easyjob.model.Appliance;
 import com.finalproject.easyjob.model.rest.RestAppliance;
 import com.finalproject.easyjob.service.OfferService;
-import com.finalproject.easyjob.service.UserService;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -19,7 +18,8 @@ public class ApplianceMapper {
     return RestAppliance.builder()
         .id(appliance.getId())
         .creationInstant(appliance.getCreationInstant())
-        .offerIdentifier(appliance.getOffer().getId())
+        .offerId(appliance.getOffer().getId())
+        .status(appliance.getStatus())
         .offerRef(appliance.getOffer().getRef())
         .userEmail(appliance.getUser().getEmail())
         .build();
@@ -30,7 +30,7 @@ public class ApplianceMapper {
         .creationInstant(Instant.now(Clock.system(ZoneId.of("GMT+3"))))
         .id(restAppliance.getId())
         .status(Appliance.Status.ONGOING)
-        .offer(offerService.getById(restAppliance.getOfferIdentifier()))
+        .offer(offerService.getById(restAppliance.getOfferId()))
         .build();
   }
 }

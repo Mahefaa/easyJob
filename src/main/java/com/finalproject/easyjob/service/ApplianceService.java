@@ -3,6 +3,7 @@ package com.finalproject.easyjob.service;
 import com.finalproject.easyjob.model.Appliance;
 import com.finalproject.easyjob.model.BoundedPageSize;
 import com.finalproject.easyjob.model.PageFromOne;
+import com.finalproject.easyjob.model.validator.ApplianceValidator;
 import com.finalproject.easyjob.repository.ApplianceRepository;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -18,6 +19,7 @@ public class ApplianceService {
   private final ApplianceRepository repository;
   private final UserService userService;
   private final MessageService messageService;
+  private final ApplianceValidator applianceValidator;
 
   public List<Appliance> getAllByUser(PageFromOne page,
                                       BoundedPageSize pageSize,
@@ -51,13 +53,15 @@ public class ApplianceService {
           pageable, userId, offerId,
           domain);
     }
-    return repository.findAllByUser_IdAndOffer_IdAndOffer_Domain_NameContainingIgnoreCaseAndStatus(pageable,
+    return repository.findAllByUser_IdAndOffer_IdAndOffer_Domain_NameContainingIgnoreCaseAndStatus(
+        pageable,
         userId,
         offerId,
         domain,
         Appliance.Status.valueOf(status));
   }
 
+  @Transactional
   public Appliance save(Appliance appliance, int userId) {
     appliance.setUser(userService.getById(userId));
     return repository.save(appliance);
@@ -66,15 +70,10 @@ public class ApplianceService {
   @Transactional
   public Appliance updateStatus(int userId, int offerId, int id, Appliance.Status status) {
     Appliance toUpdate = getByUserIdAndOfferIdAndId(userId, offerId, id);
-    if (status.equals(Appliance.Status.APPROVED) || status.equals(Appliance.Status.REJECTED)) {
-      toUpdate.setStatus(status);
-      messageService.saveMessage(id, toUpdate.toString());
-    }
+    applianceValidator.verifyStatusUpdate(status);
+    toUpdate.setStatus(status);
+    messageService.saveMessage(id, toUpdate.toString());
     return toUpdate;
-  }
-
-  public Appliance getById(int id) {
-    return repository.findById(id).orElseThrow(() -> new RuntimeException("Appliance Not Found"));
   }
 
   public Appliance getByUserIdAndId(int userId, int id) {

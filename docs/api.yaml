@@ -44,16 +44,13 @@ paths:
           required: true
           in: query
           schema:
-            type: integer
-            minimum: 1
+            $ref: '#/components/schemas/Page'
         - name: pageSize
           required: true
           in: query
           schema:
-            type: integer
-            maximum: 500
+            $ref: '#/components/schemas/PageSize'
         - name: name
-          required: false
           in: query
           schema:
             type: string
@@ -96,14 +93,12 @@ paths:
           required: true
           in: query
           schema:
-            type: integer
-            minimum: 1
+            $ref: '#/components/schemas/Page'
         - name: pageSize
           required: true
           in: query
           schema:
-            type: integer
-            maximum: 500
+            $ref: '#/components/schemas/PageSize'
         - name: mail
           in: query
           schema:
@@ -141,6 +136,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
     put:
+      description: |
+        only these fields are updatable here.
+        * email
+        * password
       summary: update user if is is provided. Create it otherwise.
       tags:
         - Users
@@ -224,6 +223,8 @@ paths:
                 $ref: '#/components/schemas/User'
   /users/{id}/roles:
     put:
+      operationId: updateRole
+      summary: updates a user's role
       tags:
         - Users
       requestBody:
@@ -253,14 +254,12 @@ paths:
           required: true
           in: query
           schema:
-            type: integer
-            minimum: 1
+            $ref: '#/components/schemas/Page'
         - name: pageSize
           required: true
           in: query
           schema:
-            type: integer
-            maximum: 500
+            $ref: '#/components/schemas/PageSize'
         - name: id
           in: path
           schema:
@@ -286,16 +285,22 @@ paths:
           required: true
           in: query
           schema:
-            type: integer
-            minimum: 1
+            $ref: '#/components/schemas/Page'
         - name: pageSize
           required: true
           in: query
           schema:
-            type: integer
-            maximum: 500
+            $ref: '#/components/schemas/PageSize'
         - name: filter
-          description: multi-criteria ignore case filter for any field in offer except ID
+          description: |
+            You can filter these columns
+              * status (ignore case)
+              * email
+              * domainName (ignore case)
+              * profile (ignore case)
+              * mission (ignore case)
+              * position
+
           in: query
           schema:
             type: string
@@ -335,9 +340,9 @@ paths:
       summary: update offers if ID is provided. Create them otherwise.
       description: |
         these values will be ignored during creation:
-          * senderEmail (user with userId's email)
+          * senderEmail (default connected user's email)
           * status (default AVAILABLE)
-          *
+          * ref
       parameters:
         - name: userId
           in: path
@@ -389,14 +394,32 @@ paths:
     get:
       tags:
         - Appliances
-      operationId: getAppliances
-      summary: get all appliances that user id has sent.
+      operationId: getAppliancesByUser
+      summary: get all appliances by sender user id .
       parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: pageSize
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
         - name: userId
           in: path
+          required: true
           schema:
             type: integer
-
+        - name: domainName
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
       responses:
         200:
           description: get all appliances sent by user id.
@@ -409,8 +432,8 @@ paths:
     put:
       tags:
         - Appliances
-      operationId: createOrUpdateAppliances
-      summary: update appliances if id is given. Create them otherwise.
+      operationId: createOrUpdateAppliance
+      summary: update appliance if id is given. Create it otherwise.
       responses:
         200:
           description: updated appliances
@@ -424,9 +447,14 @@ paths:
     get:
       tags:
         - Appliances
-      operationId: getApplianceById
-      summary: get one appliance by id
+      operationId: getApplianceByUserById
+      summary: get one appliance by user id and id
       parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -439,13 +467,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Appliance'
-  /users/{userId}/offers/{offerId}/appliances/:
+  /users/{userId}/offers/{offerId}/appliances:
     get:
       tags:
         - Appliances
-      operationId: getAppliances
-      summary: get all appliances
+      operationId: getAppliancesByOffer
+      summary: get all appliances by offer
       parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: pageSize
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
         - name: userId
           in: path
           required: true
@@ -456,6 +494,14 @@ paths:
           required: true
           schema:
             type: integer
+        - name: domainName
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ApplianceStatus'
       responses:
         200:
           description: get all appliances
@@ -465,6 +511,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Appliance'
+
   /users/{userId}/offers/{offerId}/appliances/{id}:
     get:
       tags:
@@ -501,17 +548,16 @@ paths:
       operationId: updateApplianceState
       summary: accepts or rejects appliance
       requestBody:
+        description: |
+          permits to APPROVE or REJECT an appliance.
+          possible values:
+          * APPROVED
+          * REJECTED
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - ACCEPT
-                    - REJECT
+              $ref: '#/components/schemas/ApplianceStatus'
       responses:
         200:
           description: update appliance
@@ -521,13 +567,66 @@ paths:
                 $ref: '#/components/schemas/Appliance'
 components:
   schemas:
+    Page:
+      type: integer
+      minimum: 1
+    PageSize:
+      type: integer
+      minimum: 1
+      maximum: 500
+    SaveDomain:
+      type: object
+      properties:
+        id:
+          type: string
+          example: domain_id
+        name:
+          type: string
+          example: domain_name
+    Domain:
+      allOf:
+        - $ref: "#/components/schemas/SaveDomain"
+      properties:
+        available_job_offers:
+          type: integer
+          example: 10
+    CreateUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          example: hashedPassword
+        enabled:
+          type: boolean
+    User:
+      allOf:
+        - $ref: '#/components/schemas/CreateUser'
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        joinedInstant:
+          type: string
+          format: date-time
+    Role:
+      type: string
+      enum:
+        - admin
+        - recruiter
+        - candidate
+      default: candidate
     SaveOffer:
       type: object
       properties:
         id:
           type: integer
           example: 1
-        domain:
+        domainName:
           type: string
           example: domain1
         mission:
@@ -545,6 +644,20 @@ components:
         location:
           type: string
           example: 'Konoha'
+    Message:
+      type: object
+      properties:
+        content:
+          type: string
+        email:
+          type: string
+          format: email
+        otherEmail:
+          type: string
+          format: email
+        creationInstant:
+          type: string
+          format: date-time
     Offer:
       type: object
       properties:
@@ -595,80 +708,11 @@ components:
         applianceDate:
           type: string
           format: date-time
-        Status:
-          type: string
-          enum:
-            - ONGOING
-            - APPROVED
-            - REJECTED
-    Candidate:
-      type: object
-      properties:
-        id:
-          type: string
-          example: candidate_id1
-        name:
-          type: string
-          example: Mahefa Ny Anjara
-        email:
-          type: string
-          format: email
-          example: candidate_email1
-    SaveDomain:
-      type: object
-      properties:
-        id:
-          type: string
-          example: domain_id
-        name:
-          type: string
-          example: domain_name
-    Domain:
-      allOf:
-        - $ref: "#/components/schemas/SaveDomain"
-      properties:
-        available_job_offers:
-          type: integer
-          example: 10
-    CreateUser:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          example: hashedPassword
-        enabled:
-          type: boolean
-    User:
-      allOf:
-        - $ref: '#/components/schemas/CreateUser'
-      properties:
-        role:
-          $ref: '#/components/schemas/Role'
-        joinedInstant:
-          type: string
-          format: date-time
-    Message:
-      type: object
-      properties:
-        content:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
-        otherUser:
-          $ref: '#/components/schemas/User'
-        creationInstant:
-          type: string
-          format: date-time
-    Role:
+        status:
+          $ref: '#/components/schemas/ApplianceStatus'
+    ApplianceStatus:
       type: string
       enum:
-        - admin
-        - recruiter
-        - candidate
-      default: candidate
+        - ONGOING
+        - APPROVED
+        - REJECTED

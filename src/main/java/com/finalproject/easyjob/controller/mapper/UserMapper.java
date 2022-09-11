@@ -34,7 +34,6 @@ public class UserMapper {
     return User.builder()
         .enabled(true)
         .password(encryptPassword(restUser.getPassword()))
-        .role(restUser.getRole())
         .joinedInstant(Instant.now(Clock.system(ZoneId.of("GMT+3"))))
         .email(restUser.getEmail())
         .build();
@@ -44,7 +43,6 @@ public class UserMapper {
     return RestUser.builder()
         .id(user.getId())
         .password(user.getPassword())
-        .role(user.getRole())
         .joinedInstant(user.getJoinedInstant())
         .email(user.getEmail())
         .build();

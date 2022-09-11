@@ -29,29 +29,29 @@ public class ApplianceController {
   public List<RestAppliance> getAppliancesByUser(
       @RequestParam PageFromOne page,
       @RequestParam BoundedPageSize pageSize,
-      @PathVariable("userId") int id,
+      @PathVariable("userId") int userId,
       @RequestParam(required = false, defaultValue = "") String domainName,
       @RequestParam(required = false, defaultValue = "") String status
   ) {
-    return service.getAllByUser(page, pageSize, id, domainName, status).stream().map(mapper::toRest)
+    return service.getAllByUser(page, pageSize, userId, domainName, status).stream().map(mapper::toRest)
         .toList();
   }
 
   @PutMapping("/users/{userId}/appliances")
-  public RestAppliance createOrUpdateAppliance(@PathVariable("userId") int id,
+  public RestAppliance createOrUpdateAppliance(@PathVariable("userId") int userId,
                                                @RequestBody RestAppliance restAppliance) {
-    return mapper.toRest(service.save(mapper.toDomain(restAppliance), id));
+    return mapper.toRest(service.save(mapper.toDomain(restAppliance), userId));
   }
 
   @GetMapping("/users/{userId}/appliances/{id}")
-  public RestAppliance getApplianceByUser(@PathVariable("userId") int userId,
+  public RestAppliance getApplianceByUserById(@PathVariable("userId") int userId,
                                           @PathVariable("id") int id) {
     return mapper.toRest(service.getByUserIdAndId(userId, id));
   }
 
 
   @GetMapping("/users/{userId}/offers/{offerId}/appliances")
-  public List<RestAppliance> getAppliancesByOffer(
+  public List<RestAppliance> getAppliancesByUserByOffer(
       @RequestParam PageFromOne page,
       @RequestParam BoundedPageSize pageSize,
       @PathVariable("userId") int userId,
@@ -65,7 +65,7 @@ public class ApplianceController {
   }
 
   @GetMapping("/users/{userId}/offers/{offerId}/appliances/{id}")
-  public RestAppliance getApplianceByUserAndOffer(@PathVariable("userId") int userId,
+  public RestAppliance getApplianceByUserAndOfferById(@PathVariable("userId") int userId,
                                                   @PathVariable("offerId") int offerId,
                                                   @PathVariable int id) {
     return mapper.toRest(service.getByUserIdAndOfferIdAndId(userId, offerId, id));
@@ -87,7 +87,7 @@ public class ApplianceController {
     one RECRUITER has list of Offers
     one Offer has list of Appliances
 
-    but I keep appliances together in a table because i think it's useful to have a list of all appliances
+    but I keep appliances together in a table because I think it's useful to have a list of all appliances
     and user information
 
     also because those user information are public so there's no need to hide them I Guess ...

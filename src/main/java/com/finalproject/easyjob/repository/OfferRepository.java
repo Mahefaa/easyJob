@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OfferRepository extends JpaRepository<Offer, Integer> {
-  @Query("select o from Offer o where upper(o.status) like upper(:filter) or o.sender.email like lower(concat('%',:filter,'%')) or lower(o.domain.name) like lower(concat('%',:filter,'%')) or lower(o.position) like lower(concat('%',:filter,'%')) or lower(o.mission) like lower(concat('%',:filter,'%')) or lower(o.profile) like lower(concat('%',:filter,'%'))")
+  @Query("select o from Offer o where upper(o.status) like upper(:filter) or o.sender.email like %:filter% or lower(o.domain.name) like lower(concat('%',:filter,'%')) or lower(o.position) like lower(concat('%',:filter,'%')) or lower(o.mission) like lower(concat('%',:filter,'%')) or lower(o.profile) like lower(concat('%',:filter,'%'))")
   List<Offer> findAllByCriteria(Pageable pageable, @Param("filter") String filter);
 
   /*

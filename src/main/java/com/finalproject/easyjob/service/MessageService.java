@@ -18,12 +18,13 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class MessageService {
+  private static final int ADMIN_MESSAGE_SENDER_ID = 0;
   private final MessageRepository repository;
   private final UserService userService;
 
   @Transactional
-  public Message saveMessage(int id, String content) {
-    return repository.save(
+  public void saveMessage(int id, String content) {
+    repository.save(
         Message.builder()
             .user(userService.getById(id))
             .otherUser(userService.getById(0))
@@ -36,7 +37,6 @@ public class MessageService {
   public List<Message> getMessages(PageFromOne page, BoundedPageSize pageSize, int userId) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(
         Sort.Direction.DESC, "creationInstant"));
-    //0 is Admin's id
-    return repository.findConversation(pageable, userId, 0);
+    return repository.findConversation(pageable, userId, ADMIN_MESSAGE_SENDER_ID);
   }
 }

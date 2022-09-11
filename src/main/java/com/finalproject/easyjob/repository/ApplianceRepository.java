@@ -36,5 +36,5 @@ public interface ApplianceRepository extends JpaRepository<Appliance, Integer> {
       int offerId,
       String domain,
       Appliance.Status status);
-
+  List<Appliance> findAllByOffer_Id(int offerId);
 }
