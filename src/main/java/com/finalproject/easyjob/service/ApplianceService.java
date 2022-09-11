@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ApplianceService {
   private final ApplianceRepository repository;
+  private final UserService userService;
   private final MessageService messageService;
 
   public List<Appliance> getAllByUser(PageFromOne page,
@@ -36,31 +37,35 @@ public class ApplianceService {
         Appliance.Status.valueOf(status));
   }
 
-  public List<Appliance> getAllByOffer(PageFromOne page,
-                                       BoundedPageSize pageSize,
-                                       int offerId,
-                                       String domain,
-                                       String status
+  public List<Appliance> getAllByUserAndOffer(PageFromOne page,
+                                              BoundedPageSize pageSize,
+                                              int userId,
+                                              int offerId,
+                                              String domain,
+                                              String status
   ) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(
         Sort.Direction.DESC, "creationInstant", "status"));
     if (status.isBlank() || status.isEmpty()) {
-      return repository.findAllByOffer_IdAndOffer_Domain_NameContainingIgnoreCase(pageable, offerId,
+      return repository.findAllByUser_IdAndOffer_IdAndOffer_Domain_NameContainingIgnoreCase(
+          pageable, userId, offerId,
           domain);
     }
-    return repository.findAllByOffer_IdAndOffer_Domain_NameContainingIgnoreCaseAndStatus(pageable,
+    return repository.findAllByUser_IdAndOffer_IdAndOffer_Domain_NameContainingIgnoreCaseAndStatus(pageable,
+        userId,
         offerId,
         domain,
         Appliance.Status.valueOf(status));
   }
 
-  public Appliance save(Appliance appliance) {
+  public Appliance save(Appliance appliance, int userId) {
+    appliance.setUser(userService.getById(userId));
     return repository.save(appliance);
   }
 
   @Transactional
-  public Appliance updateStatus(int id, Appliance.Status status) {
-    Appliance toUpdate = getById(id);
+  public Appliance updateStatus(int userId, int offerId, int id, Appliance.Status status) {
+    Appliance toUpdate = getByUserIdAndOfferIdAndId(userId, offerId, id);
     if (status.equals(Appliance.Status.APPROVED) || status.equals(Appliance.Status.REJECTED)) {
       toUpdate.setStatus(status);
       messageService.saveMessage(id, toUpdate.toString());
@@ -77,8 +82,8 @@ public class ApplianceService {
         .orElseThrow(() -> new RuntimeException("Appliance Not Found"));
   }
 
-  public Appliance getByOfferIdAndId(int offerId, int id) {
-    return repository.findByOffer_IdAndId(offerId, id)
+  public Appliance getByUserIdAndOfferIdAndId(int userId, int offerId, int id) {
+    return repository.findByUser_IdAndOffer_IdAndId(userId, offerId, id)
         .orElseThrow(() -> new RuntimeException("Appliance Not Found"));
   }
 }

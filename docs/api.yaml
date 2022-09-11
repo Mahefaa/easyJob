@@ -6,6 +6,33 @@ info:
 servers:
   - url: 'http://localhost:8080'
 paths:
+  /ping:
+    get:
+      operationId: ping
+      tags:
+        - Security
+      summary: replies with pong if server is OK.
+      responses:
+        200:
+          description: pong
+          content:
+            application/json:
+              schema:
+                type: string
+                example: pong
+  /whoami:
+    get:
+      tags:
+        - Security
+      summary: tells you who you are
+      operationId: whoami
+      responses:
+        200:
+          description: yourself as our user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
   /domains:
     get:
       summary: get all domains
@@ -195,6 +222,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+  /users/{id}/roles:
+    put:
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  $ref: '#/components/schemas/Role'
+      responses:
+        200:
+          description: update user with new role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{id}/messages:
+    get:
+      tags:
+        - Messages
+      summary: get all messages sent from admin account to this one.
+      operationId: getMessagesByUser
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          required: true
+          in: query
+          schema:
+            type: integer
+            maximum: 500
+        - name: id
+          in: path
+          schema:
+            type: integer
+      responses:
+        200:
+          description: messages order from the latest received.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+
   /offers:
     get:
       operationId: getOffers
@@ -253,6 +333,11 @@ paths:
         - Offers
       operationId: createOrUpdateOffers
       summary: update offers if ID is provided. Create them otherwise.
+      description: |
+        these values will be ignored during creation:
+          * senderEmail (user with userId's email)
+          * status (default AVAILABLE)
+          *
       parameters:
         - name: userId
           in: path
@@ -324,7 +409,7 @@ paths:
     put:
       tags:
         - Appliances
-      operationId: CreateOrUpdateAppliances
+      operationId: createOrUpdateAppliances
       summary: update appliances if id is given. Create them otherwise.
       responses:
         200:
@@ -354,12 +439,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Appliance'
-  /offers/{offerId}/appliances/:
+  /users/{userId}/offers/{offerId}/appliances/:
     get:
       tags:
         - Appliances
       operationId: getAppliances
       summary: get all appliances
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: get all appliances
@@ -369,13 +465,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Appliance'
-  /offers/{offerId}/appliances/{id}:
+  /users/{userId}/offers/{offerId}/appliances/{id}:
     get:
       tags:
         - Appliances
       operationId: getApplianceById
       summary: get one appliance by id
       parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
         - name: id
           in: path
           required: true
@@ -388,7 +494,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Appliance'
-  /offers/appliances/{id}/act:
+  /users/{userId}/offers/{offerId}/appliances/{id}/act:
     put:
       tags:
         - Appliances
@@ -397,12 +503,15 @@ paths:
       requestBody:
         required: true
         content:
-          text/plain:
+          application/json:
             schema:
-              type: string
-              enum:
-                - ACCEPT
-                - REJECT
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - ACCEPT
+                    - REJECT
       responses:
         200:
           description: update appliance
@@ -433,6 +542,9 @@ components:
         sender:
           type: string
           format: email
+        location:
+          type: string
+          example: 'Konoha'
     Offer:
       type: object
       properties:
@@ -461,18 +573,18 @@ components:
         sender_email:
           type: string
           format: email
+        location:
+          type: string
+          example: 'Konoha'
     CreateAppliance:
       type: object
       properties:
-        id:
-          type: string
-          example: appliance_id1
         offerId:
           type: integer
           example: 1
-        userEmail:
+        id:
           type: string
-          format: email
+          example: appliance_id1
     Appliance:
       type: object
       properties:
@@ -546,10 +658,13 @@ components:
       properties:
         content:
           type: string
-        sender:
+        user:
           $ref: '#/components/schemas/User'
-        receiver:
+        otherUser:
           $ref: '#/components/schemas/User'
+        creationInstant:
+          type: string
+          format: date-time
     Role:
       type: string
       enum:

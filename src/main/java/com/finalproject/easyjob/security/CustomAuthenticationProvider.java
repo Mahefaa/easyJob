@@ -3,22 +3,26 @@ package com.finalproject.easyjob.security;
 import com.finalproject.easyjob.model.User;
 import com.finalproject.easyjob.repository.UserRepository;
 import com.finalproject.easyjob.security.model.Principal;
-import java.util.Arrays;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.AuthenticationProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * This class provides a different for authentication which Spring Security uses
+ * This class provides a different way for authentication which Spring Security uses
  */
 @AllArgsConstructor
 @Component
-public class CustomAuthenticationProvider implements AuthenticationProvider {
+public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+  private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
   private UserRepository repository;
 
   public static Principal getPrincipal() {
@@ -27,26 +31,25 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     return (Principal) authentication.getPrincipal();
   }
 
-  /**
-   * The authenticate method is where you define how to authenticate.
-   * Here, it is a simple comparison, but you can add more filters and mechanisms
-   * Like a BCrypt hash for example, and you would match the password with the hash in your database
-   *
-   * @param authentication
-   * @return
-   * @throws BadCredentialsException
-   */
   @Override
-  public Authentication authenticate(Authentication authentication) throws BadCredentialsException {
+  protected void additionalAuthenticationChecks(UserDetails userDetails,
+                                                UsernamePasswordAuthenticationToken authentication)
+      throws AuthenticationException {
+
+  }
+
+  @Override
+  protected UserDetails retrieveUser(String username,
+                                     UsernamePasswordAuthenticationToken authentication)
+      throws AuthenticationException {
     String email = authentication.getName();
     String password = authentication.getCredentials().toString();
 
     User user = repository.findByEmail(email)
         .orElse(null);
 
-    if (user != null && user.getPassword().equals(password)) {
-      return new UsernamePasswordAuthenticationToken(email, password,
-          Arrays.asList(user.getRole()));
+    if (user != null && PASSWORD_ENCODER.matches(password, user.getPassword())) {
+      return new Principal(user);
     } else {
       throw new BadCredentialsException(
           "Invalid credentials, please check your password and username.");

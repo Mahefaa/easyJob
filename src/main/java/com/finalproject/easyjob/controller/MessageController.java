@@ -21,7 +21,7 @@ public class MessageController {
   private final MessageMapper messageMapper;
 
   @GetMapping("/users/{userId}/messages")
-  public List<RestMessage> getConversations(
+  public List<RestMessage> getMessagesByUser(
       @RequestParam PageFromOne page,
       @RequestParam BoundedPageSize pageSize,
       @PathVariable("userId") int id) {

@@ -52,6 +52,9 @@ public class Offer implements Serializable {
   @NotBlank(message = "Offer profile is mandatory")
   private String profile;
 
+  @NotNull(message = "Offer location is mandatory")
+  @NotBlank(message = "Offer location is mandatory")
+  private String location;
   @CreationTimestamp
   private Instant creationInstant;
 

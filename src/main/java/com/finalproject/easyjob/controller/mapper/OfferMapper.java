@@ -2,6 +2,7 @@ package com.finalproject.easyjob.controller.mapper;
 
 import com.finalproject.easyjob.model.Offer;
 import com.finalproject.easyjob.model.rest.RestOffer;
+import com.finalproject.easyjob.security.CustomAuthenticationProvider;
 import com.finalproject.easyjob.service.DomainService;
 import com.finalproject.easyjob.service.UserService;
 import java.time.Clock;
@@ -17,17 +18,22 @@ public class OfferMapper {
   private final DomainService domainService;
   private final UserService userService;
 
+  public String connectedEmailProvider() {
+    return CustomAuthenticationProvider.getPrincipal().getUsername();
+  }
+
   public Offer toDomain(RestOffer restOffer, int id) {
     return Offer.builder()
         .id(restOffer.getId())
         .status(Offer.Status.AVAILABLE)
         .domain(domainService.getByName(restOffer.getDomainName()))
+        .location(restOffer.getLocation())
         .creationInstant(Instant.now(Clock.system(ZoneId.of("GMT+3"))))
         .mission(restOffer.getMission())
         .ref(restOffer.getDomainName() + UUID.randomUUID())
         .position(restOffer.getPosition())
         .profile(restOffer.getProfile())
-        .sender(userService.getById(id))
+        .sender(userService.getByEmail(connectedEmailProvider()))
         .build();
   }
 
@@ -35,6 +41,7 @@ public class OfferMapper {
     return RestOffer.builder()
         .id(offer.getId())
         .status(offer.getStatus())
+        .location(offer.getLocation())
         .domainName(offer.getDomain().getName())
         .creationInstant(offer.getCreationInstant())
         .mission(offer.getMission())

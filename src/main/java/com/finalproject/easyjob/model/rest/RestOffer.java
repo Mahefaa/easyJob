@@ -15,6 +15,7 @@ public class RestOffer {
   private int id;
   private String ref;
   private Offer.Status status;
+  private String location;
   private String domainName;
   private String position;
   private String mission;

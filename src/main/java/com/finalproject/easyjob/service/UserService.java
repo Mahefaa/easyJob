@@ -4,7 +4,6 @@ import com.finalproject.easyjob.model.BoundedPageSize;
 import com.finalproject.easyjob.model.PageFromOne;
 import com.finalproject.easyjob.model.User;
 import com.finalproject.easyjob.model.validator.UserValidator;
-import com.finalproject.easyjob.repository.ApplianceRepository;
 import com.finalproject.easyjob.repository.UserRepository;
 import com.finalproject.easyjob.security.model.Role;
 import java.util.List;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class UserService {
   private final UserRepository repository;
-  private final ApplianceRepository applianceRepository;
   private final UserValidator validator;
 
   public List<User> getAllByCriteria(PageFromOne page, BoundedPageSize pageSize, String email,
@@ -52,11 +50,15 @@ public class UserService {
     validator.accept(user);
     User toUpdate = getById(id);
     toUpdate.setEmail(user.getEmail());
-    if (toUpdate.getRole().equals(Role.ADMIN)) {
-      toUpdate.setRole(user.getRole());
-    }
     toUpdate.setEnabled(user.getEnabled());
     toUpdate.setPassword(user.getPassword());
+    return repository.save(toUpdate);
+  }
+
+  @Transactional
+  public User updateUserRole(int id, Role role) {
+    User toUpdate = getById(id);
+    toUpdate.setRole(role);
     return repository.save(toUpdate);
   }
 }

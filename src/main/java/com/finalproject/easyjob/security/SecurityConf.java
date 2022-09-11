@@ -3,6 +3,7 @@ package com.finalproject.easyjob.security;
 import com.finalproject.easyjob.security.model.Role;
 import com.finalproject.easyjob.service.CustomUserDetailsService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
+@Slf4j
 public class SecurityConf extends WebSecurityConfigurerAdapter {
   private CustomAuthenticationProvider authProvider;
   private CustomUserDetailsService userDetailsService;
@@ -31,39 +33,47 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
 
         .authorizeRequests()
-        //users
-        .antMatchers(HttpMethod.POST, "/users/admins").hasRole(Role.ADMIN.getRole())
-        .antMatchers(HttpMethod.POST, "/users/candidates").permitAll()
-        .antMatchers(HttpMethod.POST, "/users/recruiters").permitAll()
-        .antMatchers(HttpMethod.PUT, "/users/*").authenticated()
-        .antMatchers(HttpMethod.GET, "/users").authenticated()
-        .antMatchers(HttpMethod.GET, "/users/*").authenticated()
-        //TODO self matcher on put /users/*
 
-        //offers
-        .antMatchers(HttpMethod.GET, "/offers").permitAll()
-        .antMatchers(HttpMethod.PUT, "/users/*/offers")
-        .hasAnyRole(Role.ADMIN.getRole(), Role.RECRUITER.getRole())
-        //TODO self matcher on put /users/*/offers
-        .antMatchers(HttpMethod.GET, "/offers/*").permitAll()
-        .antMatchers(HttpMethod.GET, "/users/*/offers/*/close")
-        .hasAnyRole(Role.ADMIN.getRole(), Role.RECRUITER.getRole())
+        //security
+        .antMatchers(HttpMethod.GET, "/ping").permitAll()
+        .antMatchers(HttpMethod.GET, "/whoami").authenticated()
 
         //domains
         .antMatchers(HttpMethod.GET, "/domains").permitAll()
         .antMatchers(HttpMethod.PUT, "/domains").hasRole(Role.ADMIN.getRole())
 
-        //user appliances
-        .antMatchers(HttpMethod.GET, "/users/*/appliances").authenticated()
-        //TODO get appliances self Matcher
-        .antMatchers(HttpMethod.GET, "/users/*/appliances/*").authenticated()
+        //offers
+        .antMatchers(HttpMethod.GET, "/offers/*").permitAll()
+        .antMatchers(HttpMethod.GET, "/offers").permitAll()
+        .antMatchers(HttpMethod.GET, "/users/*/offers/*/close")
+        .hasAnyRole(Role.ADMIN.getRole(), Role.RECRUITER.getRole())
+        .requestMatchers(new SelfMatcher(HttpMethod.PUT, "/users/*/offers"))
+        .hasAnyRole(Role.ADMIN.getRole(), Role.RECRUITER.getRole())
 
         //offer Appliances
-        .antMatchers(HttpMethod.GET, "/offers/*/appliances")
+        .antMatchers(HttpMethod.PUT, "/users/*/offers/*/appliances/*/act")
         .hasAnyRole(Role.ADMIN.getRole(), Role.RECRUITER.getRole())
-        .antMatchers(HttpMethod.GET, "/offers/*/appliances/*")
+        .antMatchers(HttpMethod.GET, "/users/*/offers/*/appliances")
+        .hasAnyRole(Role.ADMIN.getRole(), Role.RECRUITER.getRole())
+        .antMatchers(HttpMethod.GET, "/users/*/offers/*/appliances/*")
         .hasAnyRole(Role.ADMIN.getRole(), Role.CANDIDATE.getRole())
 
+        //user appliances
+        .requestMatchers(new SelfMatcher(HttpMethod.GET, "/users/*/appliances")).authenticated()
+        .requestMatchers(new SelfMatcher(HttpMethod.PUT, "/users/*/appliances")).authenticated()
+        .requestMatchers(new SelfMatcher(HttpMethod.GET, "/users/*/appliances/*")).authenticated()
+
+        //users
+        .requestMatchers(new SelfMatcher(HttpMethod.PUT, "/users/*")).authenticated()
+        .antMatchers(HttpMethod.POST, "/users/admins").hasRole(Role.ADMIN.getRole())
+        .antMatchers(HttpMethod.POST, "/users/candidates").permitAll()
+        .antMatchers(HttpMethod.POST, "/users/recruiters").permitAll()
+        .antMatchers(HttpMethod.GET, "/users").authenticated()
+        .antMatchers(HttpMethod.PUT, "/users/*/roles").hasRole(Role.ADMIN.getRole())
+        .requestMatchers(new SelfMatcher(HttpMethod.GET, "/users/*/messages")).authenticated()
+        .antMatchers(HttpMethod.GET, "/users/*").authenticated()
+
+        //deny other requests
         .antMatchers("/**").denyAll()
         .and()
         .formLogin()

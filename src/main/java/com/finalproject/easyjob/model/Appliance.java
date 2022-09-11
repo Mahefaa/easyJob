@@ -1,5 +1,6 @@
 package com.finalproject.easyjob.model;
 
+import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,11 +23,11 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Appliance {
+public class Appliance implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
-  @OneToOne
+  @ManyToOne
   private Offer offer;
   @ManyToOne
   private User user;

@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class ApplianceMapper {
-  private final UserService userService;
   private final OfferService offerService;
 
   public RestAppliance toRest(Appliance appliance) {
     return RestAppliance.builder()
         .id(appliance.getId())
         .creationInstant(appliance.getCreationInstant())
-        .offerId(appliance.getOffer().getId())
+        .offerIdentifier(appliance.getOffer().getId())
+        .offerRef(appliance.getOffer().getRef())
         .userEmail(appliance.getUser().getEmail())
         .build();
   }
@@ -30,8 +30,7 @@ public class ApplianceMapper {
         .creationInstant(Instant.now(Clock.system(ZoneId.of("GMT+3"))))
         .id(restAppliance.getId())
         .status(Appliance.Status.ONGOING)
-        .user(userService.getByEmail(restAppliance.getUserEmail()))
-        .offer(offerService.getById(restAppliance.getOfferId()))
+        .offer(offerService.getById(restAppliance.getOfferIdentifier()))
         .build();
   }
 }

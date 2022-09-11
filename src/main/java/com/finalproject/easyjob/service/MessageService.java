@@ -36,7 +36,7 @@ public class MessageService {
   public List<Message> getMessages(PageFromOne page, BoundedPageSize pageSize, int userId) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(
         Sort.Direction.DESC, "creationInstant"));
-    //0 is Admin'is id
+    //0 is Admin's id
     return repository.findConversation(pageable, userId, 0);
   }
 }

@@ -7,11 +7,18 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
 public class UserMapper {
+  private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+
+  private String encryptPassword(String password) {
+    return PASSWORD_ENCODER.encode(password);
+  }
+
   public User toDomain(RestUser restUser, Role role) {
     return User.builder()
         .id(restUser.getId())
@@ -19,14 +26,14 @@ public class UserMapper {
         .role(role)
         .joinedInstant(Instant.now(Clock.system(ZoneId.of("GMT+3"))))
         .email(restUser.getEmail())
-        .password(restUser.getPassword())
+        .password(encryptPassword(restUser.getPassword()))
         .build();
   }
 
   public User toDomain(RestUser restUser) {
     return User.builder()
         .enabled(true)
-        .password(restUser.getPassword())
+        .password(encryptPassword(restUser.getPassword()))
         .role(restUser.getRole())
         .joinedInstant(Instant.now(Clock.system(ZoneId.of("GMT+3"))))
         .email(restUser.getEmail())
