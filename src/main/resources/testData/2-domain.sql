@@ -1,0 +1,9 @@
+INSERT INTO public.domain (id, name) VALUES (1, 'informatics');
+INSERT INTO public.domain (id, name) VALUES (8, 'technology');
+INSERT INTO public.domain (id, name) VALUES (9, 'medecine');
+INSERT INTO public.domain (id, name) VALUES (6, 'mathematics');
+INSERT INTO public.domain (id, name) VALUES (3, 'business');
+INSERT INTO public.domain (id, name) VALUES (5, 'ecology');
+INSERT INTO public.domain (id, name) VALUES (7, 'sciences');
+INSERT INTO public.domain (id, name) VALUES (10, 'love');
+INSERT INTO public.domain (id, name) VALUES (11, 'life');
