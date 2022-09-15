@@ -72,7 +72,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SaveDomain'
+              type: array
+              items:
+                $ref: '#/components/schemas/SaveDomain'
       responses:
         200:
           description: updated's domain list
@@ -299,7 +301,8 @@ paths:
               * domainName (ignore case)
               * profile (ignore case)
               * mission (ignore case)
-              * position
+              * position (ignore case)
+              * location (ignore case)
 
           in: query
           schema:
@@ -587,7 +590,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/SaveDomain"
       properties:
-        available_job_offers:
+        availableJobOffers:
           type: integer
           example: 10
     CreateUser:
@@ -602,8 +605,6 @@ components:
         password:
           type: string
           example: hashedPassword
-        enabled:
-          type: boolean
     User:
       allOf:
         - $ref: '#/components/schemas/CreateUser'
@@ -613,13 +614,15 @@ components:
         joinedInstant:
           type: string
           format: date-time
+        enabled:
+          type: boolean
     Role:
       type: string
       enum:
-        - admin
-        - recruiter
-        - candidate
-      default: candidate
+        - ADMIN
+        - RECRUITER
+        - CANDIDATE
+      default: CANDIDATE
     SaveOffer:
       type: object
       properties:
@@ -704,7 +707,7 @@ components:
         offer:
           $ref: '#/components/schemas/Offer'
         candidate:
-          $ref: '#/components/schemas/Candidate'
+          $ref: '#/components/schemas/User'
         applianceDate:
           type: string
           format: date-time

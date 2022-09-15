@@ -23,10 +23,10 @@ public class MessageService {
   private final UserService userService;
 
   @Transactional
-  public void saveMessage(int id, String content) {
+  public void saveMessage(int userId, String content) {
     repository.save(
         Message.builder()
-            .user(userService.getById(id))
+            .user(userService.getById(userId))
             .otherUser(userService.getById(0))
             .content(content)
             .creationInstant(Instant.now(Clock.system(ZoneId.of("GMT+3"))))

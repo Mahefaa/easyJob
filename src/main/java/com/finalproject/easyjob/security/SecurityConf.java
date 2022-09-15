@@ -33,6 +33,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
 
         .authorizeRequests()
+        .antMatchers(HttpMethod.OPTIONS).permitAll()
 
         //security
         .antMatchers(HttpMethod.GET, "/ping").permitAll()
@@ -78,7 +79,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
         .formLogin()
         .and()
-        .logout().permitAll().and()
+        .logout().permitAll()
+        .and()
         .httpBasic();
   }
 }

@@ -42,6 +42,7 @@ public class UserMapper {
   public RestUser toRest(User user) {
     return RestUser.builder()
         .id(user.getId())
+        .role(user.getRole())
         .password(user.getPassword())
         .joinedInstant(user.getJoinedInstant())
         .email(user.getEmail())

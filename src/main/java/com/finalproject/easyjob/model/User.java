@@ -42,7 +42,6 @@ public class User implements Serializable {
   private String password;
   @CreationTimestamp
   private Instant joinedInstant;
-  //should add interests : list of string that could be domains
   @Enumerated(EnumType.STRING)
   private Role role;
   @Column(columnDefinition = "boolean default true")

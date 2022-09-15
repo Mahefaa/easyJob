@@ -72,7 +72,7 @@ public class ApplianceService {
     Appliance toUpdate = getByUserIdAndOfferIdAndId(userId, offerId, id);
     applianceValidator.verifyStatusUpdate(status);
     toUpdate.setStatus(status);
-    messageService.saveMessage(id, toUpdate.toString());
+    messageService.saveMessage(userId, toUpdate.toString());
     return toUpdate;
   }
 
