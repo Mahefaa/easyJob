@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class ApplianceValidator {
   public void verifyStatusUpdate(Appliance.Status status) {
     if (!status.equals(Appliance.Status.APPROVED) && !status.equals(Appliance.Status.REJECTED)) {
-      throw new RuntimeException("");
+      throw new RuntimeException("Status cannot get back to ONGOING.");
     }
   }
 }

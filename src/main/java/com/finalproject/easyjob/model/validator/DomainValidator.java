@@ -16,7 +16,7 @@ public class DomainValidator {
     StringBuilder exceptionMessageBuilder = new StringBuilder();
     String name = domain.getName();
     if (name == null || name.isEmpty() || name.isBlank()) {
-      exceptionMessageBuilder.append("name is missing");
+      exceptionMessageBuilder.append("name is missing.");
     }
     if (!exceptionMessageBuilder.isEmpty()) {
       throw new RuntimeException(exceptionMessageBuilder.toString());

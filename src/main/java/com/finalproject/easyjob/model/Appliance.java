@@ -48,7 +48,7 @@ public class Appliance implements Serializable {
         + user.getEmail()
         + " Your Appliance to offer "
         + offer.getRef()
-        + "got "
+        + " got "
         + status;
   }
 
